@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using CourseLibrary.Domain;
+using CourseLibrary.Services;
 
-namespace CourseLibrary.Persistence.Implementations
+namespace CourseLibrary.Persistence.EFCore
 {
     public class CourseLibraryRepository : ICourseLibraryRepository, IDisposable
     {

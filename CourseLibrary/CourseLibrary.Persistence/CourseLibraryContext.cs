@@ -2,7 +2,7 @@
 using CourseLibrary.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace CourseLibrary.Persistence
+namespace CourseLibrary.Persistence.EFCore
 {
     public class CourseLibraryContext : DbContext
     {
