@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.API", "Course
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.Domain", "CourseLibrary.Domain\CourseLibrary.Domain.csproj", "{DC230A54-5EEA-4D77-8D0F-CB3908711BB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.Persistence", "CourseLibrary.Persistence\CourseLibrary.Persistence.csproj", "{037EB9AA-422F-4CE0-96A9-4D0D5D5F5540}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.Persistence.EFCore", "CourseLibrary.Persistence\CourseLibrary.Persistence.EFCore.csproj", "{037EB9AA-422F-4CE0-96A9-4D0D5D5F5540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.Application", "CourseLibrary.Application\CourseLibrary.Application.csproj", "{4BDA02F0-8158-45BD-963F-5C22760836B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseLibrary.Services", "CourseLibrary.Application\CourseLibrary.Services.csproj", "{4BDA02F0-8158-45BD-963F-5C22760836B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
