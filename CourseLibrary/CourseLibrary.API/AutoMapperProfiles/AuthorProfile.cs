@@ -16,6 +16,8 @@ namespace CourseLibrary.API.AutoMapperProfiles
                 .ForMember(
                     dest => dest.Age,
                     options => options.MapFrom(source => $"{source.DateOfBirth.GetCurrentAge()}"));
+
+            CreateMap<AuthorCreationDto, Author>();
         }
     }
 }
