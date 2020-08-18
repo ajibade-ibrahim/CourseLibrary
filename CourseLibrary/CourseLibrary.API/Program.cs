@@ -30,8 +30,11 @@ namespace CourseLibrary.API
 
                     // for demo purposes, delete the database & migrate on startup so
                     // we can start with a clean slate
-                    context.Database.EnsureDeleted();
-                    context.Database.Migrate();
+                    if (context.Database?.CanConnect() != true)
+                    {
+                        context.Database.EnsureDeleted();
+                        context.Database.Migrate();
+                    }
                 }
                 catch (Exception ex)
                 {
