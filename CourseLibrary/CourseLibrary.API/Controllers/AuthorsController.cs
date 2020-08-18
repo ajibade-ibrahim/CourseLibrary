@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.ResourceParameters;
+using CourseLibrary.Domain;
 using CourseLibrary.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers
@@ -16,13 +13,23 @@ namespace CourseLibrary.API.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private readonly ICourseLibraryRepository _repository;
-        private readonly IMapper _mapper;
-
         public AuthorsController(ICourseLibraryRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
+        }
+
+        private readonly IMapper _mapper;
+        private readonly ICourseLibraryRepository _repository;
+
+        [HttpGet("api/authors/{id}", Name = "GetAuthor")]
+        public ActionResult<IEnumerable<AuthorDto>> GetAuthor(Guid id)
+        {
+            var author = _repository.GetAuthor(id);
+
+            return author == null
+                ? (ActionResult<IEnumerable<AuthorDto>>)NotFound()
+                : Ok(_mapper.Map<AuthorDto>(author));
         }
 
         [HttpGet]
@@ -32,14 +39,25 @@ namespace CourseLibrary.API.Controllers
             return Ok(_mapper.Map<IEnumerable<AuthorDto>>(_repository.GetAuthors(parameters)));
         }
 
-        [HttpGet("api/authors/{id}")]
-        public ActionResult<IEnumerable<AuthorDto>> GetAuthor(Guid id)
+        [HttpPost]
+        public ActionResult<AuthorDto> Post([FromBody] AuthorCreationDto authorCreationDto)
         {
-            var author = _repository.GetAuthor(id);
+            var author = _mapper.Map<Author>(authorCreationDto);
+            _repository.AddAuthor(author);
 
-            return author == null
-                ? (ActionResult<IEnumerable<AuthorDto>>)NotFound()
-                : Ok(_mapper.Map<AuthorDto>(author));
+            if (!_repository.Save())
+            {
+                throw new InvalidOperationException("Error occurred: Unable to create Author");
+            }
+
+            var authorDto = _mapper.Map<AuthorDto>(author);
+            return CreatedAtAction(
+                "GetAuthor",
+                new
+                {
+                    id = authorDto.Id
+                },
+                authorDto);
         }
     }
 }
