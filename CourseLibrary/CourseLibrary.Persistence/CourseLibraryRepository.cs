@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using CourseLibrary.Domain;
 using CourseLibrary.Services;
+using CourseLibrary.Services.ResourceParameterContracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseLibrary.Persistence.EFCore
 {
@@ -88,6 +90,36 @@ namespace CourseLibrary.Persistence.EFCore
         public IEnumerable<Author> GetAuthors()
         {
             return _context.Authors.ToList();
+        }
+
+        public IEnumerable<Author> GetAuthors(IAuthorParameters authorParameters)
+        {
+            if (authorParameters == null
+                || string.IsNullOrWhiteSpace(authorParameters.MainCategory)
+                && string.IsNullOrWhiteSpace(authorParameters.SearchQuery))
+            {
+                return GetAuthors();
+            }
+
+            var authors = _context.Authors.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(authorParameters.MainCategory))
+            {
+                var mainCategory = authorParameters.MainCategory.Trim();
+                authors = authors.Where(author => author.MainCategory.Equals(mainCategory));
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorParameters.SearchQuery))
+            {
+                var searchQuery = authorParameters.SearchQuery.Trim();
+                authors = authors.Where(
+                    author => author.FirstName.Contains(searchQuery)
+                        || author.LastName.Contains(searchQuery)
+                        || author.MainCategory.Contains(searchQuery));
+            }
+
+            var enumerable = authors.ToList();
+            return enumerable;
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
