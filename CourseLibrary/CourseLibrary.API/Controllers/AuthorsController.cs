@@ -22,7 +22,7 @@ namespace CourseLibrary.API.Controllers
         private readonly IMapper _mapper;
         private readonly ICourseLibraryRepository _repository;
 
-        [HttpGet("api/authors/{id}", Name = "GetAuthor")]
+        [HttpGet("{id}", Name = "GetAuthor")]
         public ActionResult<IEnumerable<AuthorDto>> GetAuthor(Guid id)
         {
             var author = _repository.GetAuthor(id);
@@ -58,6 +58,13 @@ namespace CourseLibrary.API.Controllers
                     id = authorDto.Id
                 },
                 authorDto);
+        }
+
+        [HttpOptions]
+        public IActionResult GetAuthorsOptions()
+        {
+            Response.Headers.Add("Allow", "GET, POST, HEAD, OPPTIONS");
+            return Ok();
         }
     }
 }
