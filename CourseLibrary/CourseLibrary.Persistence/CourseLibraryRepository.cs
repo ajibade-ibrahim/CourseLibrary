@@ -4,7 +4,6 @@ using System.Linq;
 using CourseLibrary.Domain;
 using CourseLibrary.Services;
 using CourseLibrary.Services.ResourceParameterContracts;
-using Microsoft.EntityFrameworkCore;
 
 namespace CourseLibrary.Persistence.EFCore
 {
@@ -33,6 +32,32 @@ namespace CourseLibrary.Persistence.EFCore
             }
 
             _context.Authors.Add(author);
+        }
+
+        public void AddAuthors(IEnumerable<Author> authors)
+        {
+            if (authors == null)
+            {
+                throw new ArgumentNullException(nameof(authors));
+            }
+
+            // the repository fills the id (instead of using identity columns)
+            var authorsList = authors.ToList();
+            authorsList.ForEach(
+                author =>
+                {
+                    author.Id = Guid.NewGuid();
+
+                    if (author.Courses?.Any() == true)
+                    {
+                        foreach (var course in author.Courses)
+                        {
+                            course.Id = Guid.NewGuid();
+                        }
+                    }
+                });
+
+            _context.Authors.AddRange(authorsList);
         }
 
         public void AddCourse(Guid authorId, Course course)
@@ -173,6 +198,12 @@ namespace CourseLibrary.Persistence.EFCore
         public void UpdateCourse(Course course)
         {
             // no code in this implementation
+        }
+
+        public IEnumerable<Author> GetAuthorsByIds(IEnumerable<string> authorIds)
+        {
+            var idsList = authorIds?.ToList() ?? new List<string>();
+            return idsList.Select(authorId => _context.Authors.Find(new Guid(authorId))).ToList();
         }
 
         public void Dispose()

@@ -8,6 +8,7 @@ namespace CourseLibrary.Services
     public interface ICourseLibraryRepository
     {
         void AddAuthor(Author author);
+        void AddAuthors(IEnumerable<Author> authors);
         void AddCourse(Guid authorId, Course course);
         bool AuthorExists(Guid authorId);
         void DeleteAuthor(Author author);
@@ -21,5 +22,6 @@ namespace CourseLibrary.Services
         bool Save();
         void UpdateAuthor(Author author);
         void UpdateCourse(Course course);
+        IEnumerable<Author> GetAuthorsByIds(IEnumerable<string> authorIds);
     }
 }
