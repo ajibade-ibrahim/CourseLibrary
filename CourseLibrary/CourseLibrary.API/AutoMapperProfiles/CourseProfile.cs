@@ -9,6 +9,7 @@ namespace CourseLibrary.API.AutoMapperProfiles
         public CourseProfile()
         {
             CreateMap<Course, CourseDto>();
+            CreateMap<CourseCreationDto, Course>();
         }
     }
 }
