@@ -117,13 +117,18 @@ namespace CourseLibrary.Persistence.EFCore
             return _context.Authors.ToList();
         }
 
-        public IEnumerable<Author> GetAuthors(IAuthorParameters authorParameters)
+        public IEnumerable<Author> GetAuthors(IAuthorParameters authorParameters, out int totalCount)
         {
-            if (authorParameters == null
-                || string.IsNullOrWhiteSpace(authorParameters.MainCategory)
-                && string.IsNullOrWhiteSpace(authorParameters.SearchQuery))
+            if (authorParameters == null)
             {
-                return GetAuthors();
+                throw new ArgumentNullException(
+                    nameof(authorParameters),
+                    "Filtering parameters should be passed to avoid data overload.");
+            }
+
+            if (authorParameters.PageNumber < 1 || authorParameters.PageSize < 1)
+            {
+                throw new ArgumentException("Invalid page information passed");
             }
 
             var authors = _context.Authors.AsQueryable();
@@ -143,8 +148,10 @@ namespace CourseLibrary.Persistence.EFCore
                         || author.MainCategory.Contains(searchQuery));
             }
 
-            var enumerable = authors.ToList();
-            return enumerable;
+            totalCount = authors.Count();
+            var skipCount = (authorParameters.PageNumber - 1) * authorParameters.PageSize;
+            authors = authors.Skip(skipCount).Take(authorParameters.PageSize);
+            return authors.ToList();
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)

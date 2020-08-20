@@ -15,7 +15,7 @@ namespace CourseLibrary.Services
         void DeleteCourse(Course course);
         Author GetAuthor(Guid authorId);
         IEnumerable<Author> GetAuthors();
-        IEnumerable<Author> GetAuthors(IAuthorParameters authorParameters);
+        IEnumerable<Author> GetAuthors(IAuthorParameters authorParameters, out int totalCount);
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
         Course GetCourse(Guid authorId, Guid courseId);
         IEnumerable<Course> GetCourses(Guid authorId);
