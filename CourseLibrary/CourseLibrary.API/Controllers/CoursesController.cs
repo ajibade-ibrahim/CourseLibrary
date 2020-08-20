@@ -7,7 +7,12 @@ using CourseLibrary.API.Models;
 using CourseLibrary.Domain;
 using CourseLibrary.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -69,10 +74,83 @@ namespace CourseLibrary.API.Controllers
                 "GetCourseForAuthor",
                 new
                 {
-                    authorId = authorId,
+                    authorId,
                     courseId = courseDto.Id
                 },
                 courseDto);
+        }
+
+        [HttpPut("{courseId}")]
+        public IActionResult Put(Guid authorId, Guid courseId, CourseUpdateDto courseUpdateDto)
+        {
+            if (!_repository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var course = _repository.GetCourse(authorId, courseId);
+
+            if (course == null)
+            {
+                course = _mapper.Map<Course>(courseUpdateDto);
+                course.Id = courseId;
+                _repository.AddCourse(authorId, course);
+                _repository.Save();
+
+                return base.CreatedAtAction(
+                    "GetCourseForAuthor",
+                    new
+                    {
+                        authorId,
+                        courseId
+                    },
+                    _mapper.Map<CourseDto>(course));
+            }
+
+            _mapper.Map(courseUpdateDto, course);
+            _repository.UpdateCourse(course);
+            _repository.Save();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{courseId}")]
+        public IActionResult Patch(Guid authorId, Guid courseId, JsonPatchDocument<CourseUpdateDto> jsonPatchDocument)
+        {
+            if (!_repository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var course = _repository.GetCourse(authorId, courseId);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            var courseUpdateDto = _mapper.Map<CourseUpdateDto>(course);
+            jsonPatchDocument.ApplyTo(courseUpdateDto, ModelState);
+
+            if (TryValidateModel(courseUpdateDto))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(courseUpdateDto, course);
+            _repository.Save();
+
+            return NoContent();
+        }
+
+        public override ActionResult ValidationProblem(
+            [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
+        {
+            var apiBehaviorOptions = HttpContext.RequestServices
+                .GetRequiredService<IOptions<ApiBehaviorOptions>>()
+                .Value;
+            var result = apiBehaviorOptions.InvalidModelStateResponseFactory(ControllerContext);
+            return (ActionResult)result;
         }
     }
 }

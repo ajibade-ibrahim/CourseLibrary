@@ -10,6 +10,7 @@ namespace CourseLibrary.API.AutoMapperProfiles
         {
             CreateMap<Course, CourseDto>();
             CreateMap<CourseCreationDto, Course>();
+            CreateMap<CourseUpdateDto, Course>().ReverseMap();
         }
     }
 }
