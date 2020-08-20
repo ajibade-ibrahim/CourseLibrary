@@ -31,8 +31,9 @@ namespace CourseLibrary.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(configure => configure.ReturnHttpNotAcceptable = true)
-                .AddXmlDataContractSerializerFormatters()
-                .ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction());
+                .ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction())
+                .AddNewtonsoftJson(setupAction => setupAction.UseCamelCasing(true))
+                .AddXmlDataContractSerializerFormatters();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
