@@ -18,6 +18,9 @@ namespace CourseLibrary.API.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
+        private const string GetMethod = "GET";
+        private const string DeleteAuthor = "DeleteAuthor";
+
         public AuthorsController(ICourseLibraryRepository repository, IMapper mapper, IConfiguration configuration)
         {
             _repository = repository;
@@ -84,6 +87,22 @@ namespace CourseLibrary.API.Controllers
                 authorDto);
         }
 
+        [HttpDelete("{authorId}", Name = DeleteAuthor)]
+        public IActionResult Delete(Guid authorId)
+        {
+            var author = _repository.GetAuthor(authorId);
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            _repository.DeleteAuthor(author);
+            _repository.Save();
+
+            return NoContent();
+        }
+
         [HttpOptions]
         public IActionResult GetAuthorsOptions()
         {
@@ -122,10 +141,39 @@ namespace CourseLibrary.API.Controllers
                 new
                 {
                     pageNumber,
+                    fields = parameters.Fields,
                     pageSize = parameters.PageSize,
                     mainCategory = parameters.MainCategory,
                     searchQuery = parameters.SearchQuery
                 });
+        }
+
+        private IEnumerable<LinkDto> CreateAuthorLinks(Guid authorId, string fields)
+        {
+            var links = new List<LinkDto>();
+            var authorIdObject = new
+            {
+                authorId
+            };
+
+            var authorIdWithFields = new
+            {
+                authorId,
+                fields
+            };
+
+            var selfLink = string.IsNullOrWhiteSpace(fields)
+                ? Url.Link("GetAuthor", authorIdObject)
+                : Url.Link("GetAuthor", authorIdWithFields);
+
+            links.Add(new LinkDto(selfLink, "self", GetMethod));
+            links.Add(new LinkDto(Url.Link(DeleteAuthor, authorIdObject), "delete_author", "DELETE"));
+
+            links.Add(
+                new LinkDto(Url.Link("CreateCourseForAuthor", authorIdObject), "create_course_for_author", "POST"));
+            links.Add(new LinkDto(Url.Link("GetCoursesForAuthor", authorIdObject), "courses", GetMethod));
+
+            return links;
         }
     }
 }

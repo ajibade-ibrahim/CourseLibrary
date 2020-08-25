@@ -36,7 +36,7 @@ namespace CourseLibrary.API.Controllers
             return (ActionResult)result;
         }
 
-        [HttpPost]
+        [HttpPost(Name = "CreateCourseForAuthor")]
         public ActionResult<CourseDto> CreateCourseForAuthor(
             Guid authorId,
             [FromBody] CourseCreationDto courseCreationDto)
