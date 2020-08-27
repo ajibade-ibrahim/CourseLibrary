@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using AutoMapper;
 using CourseLibrary.Persistence.EFCore;
 using CourseLibrary.Services;
@@ -30,7 +29,18 @@ namespace CourseLibrary.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(configure => configure.ReturnHttpNotAcceptable = true)
+            services.AddResponseCaching();
+            services.AddControllers(
+                    configure =>
+                    {
+                        configure.ReturnHttpNotAcceptable = true;
+                        configure.CacheProfiles.Add(
+                            "TwoMinuteCache",
+                            new CacheProfile
+                            {
+                                Duration = 120
+                            });
+                    })
                 .ConfigureApiBehaviorOptions(ApiBehaviorOptionsSetupAction())
                 .AddNewtonsoftJson(setupAction => setupAction.UseCamelCasing(true))
                 .AddXmlDataContractSerializerFormatters();
@@ -95,6 +105,8 @@ namespace CourseLibrary.API
                             await context.Response.WriteAsync("An unexpected fault happened. Please try again later");
                         }));
             }
+
+            app.UseResponseCaching();
 
             app.UseRouting();
 
