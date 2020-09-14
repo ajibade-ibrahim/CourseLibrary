@@ -107,7 +107,7 @@ namespace CourseLibrary.API.Controllers
             var courseUpdateDto = _mapper.Map<CourseUpdateDto>(course);
             jsonPatchDocument.ApplyTo(courseUpdateDto, ModelState);
 
-            if (TryValidateModel(courseUpdateDto))
+            if (!TryValidateModel(courseUpdateDto))
             {
                 return ValidationProblem(ModelState);
             }
